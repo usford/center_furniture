@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "320891389428",
+    "firebase_url": "https://furniture-center.firebaseio.com",
+    "project_id": "furniture-center",
+    "storage_bucket": "furniture-center.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:320891389428:android:ee017ce1205d73ac6025a1",
+        "android_client_info": {
+          "package_name": "com.example.furniture_center"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "320891389428-e1luihjb0s4d11tpq3k9du4qrconqa0g.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyChNuMVh70ww6WyYe0blhJrh_TFTpqyLSM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "320891389428-e1luihjb0s4d11tpq3k9du4qrconqa0g.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
