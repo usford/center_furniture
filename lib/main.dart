@@ -96,15 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return MultiProvider
     (
       providers: providers,
-      child: MaterialApp
-        (
-        title: 'Flutter Demo',
-        theme: ThemeData
-        (
-          primarySwatch: Colors.blue,
-        ),
-        home: WorkSpaceAdmin(),
-      ),
+      child: WorkSpaceAdmin(),
     );
   }
 }

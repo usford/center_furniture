@@ -2,6 +2,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:furniture_center/Adapters/adapter_material.dart';
 import 'package:furniture_center/Adapters/adapter_provider.dart';
 import 'package:furniture_center/Adapters/adapter_purchase.dart';
 import 'package:furniture_center/PopupsMenu/popup_menu_change_cell.dart';
@@ -16,13 +17,14 @@ class TablePurchases extends StatefulWidget
 class _StateTablePurchases extends State<TablePurchases>
 { 
   List<MyProvider> _providers;
+  List<MyMaterial> _materials;
   void visibleAddPurchase()
   {
     showDialog(
       context: context,
       builder: (context)
       {
-        return DialogAddPurchase(providers: _providers,);
+        return DialogAddPurchase(providers: _providers, materials: _materials,);
       }
     );
   }
@@ -33,12 +35,12 @@ class _StateTablePurchases extends State<TablePurchases>
     {
       case PopupMenuChangeCell.edit:
       {
-        print('Редактировать');
+        //print('Редактировать');
         showDialog(
           context: context,
           builder: (BuildContext context)
           {
-            return DialogAddPurchase(nameButton: "Редактировать", purchase: purchase,);
+            return DialogAddPurchase(nameButton: "Редактировать", purchase: purchase, materials: _materials, providers: _providers,);
           }
         );
         break;
@@ -46,7 +48,7 @@ class _StateTablePurchases extends State<TablePurchases>
 
       case PopupMenuChangeCell.delete:
       {
-        print('Удалить');
+        //print('Удалить');
         Provider.of<AdapterPurchase>(context).remove(id);
         break;
       }
@@ -70,97 +72,155 @@ class _StateTablePurchases extends State<TablePurchases>
     });
   }
 
+  void getMaterial(BuildContext context)
+  {
+    _materials = List<MyMaterial>();
+    Provider.of<AdapterMaterial>(context).materials.forEach((material)
+    {
+      //print(provider.documentID);
+      _materials.add(
+        MyMaterial
+        (
+          documentID: material.documentID,
+          name: material.name,
+          fabric: material.fabric
+        )
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context)
   {
     getProvider(context);
-    return ChangeNotifierProvider<AdapterPurchase>
+    getMaterial(context);
+    return Consumer<AdapterPurchase>
     (
-      builder: (_) => AdapterPurchase(),
-      child: Consumer<AdapterPurchase>
-      (
-        builder: (context, value, child)
-        {
-          return Scaffold
+      builder: (context, value, child)
+      {
+        return Scaffold
+        (
+          body: Center
           (
-            body: Center
-            (
-              child: ListView.builder(
-                itemCount: value.purchases.length,
-                itemBuilder: (BuildContext context, int index)
-                {
-                  Purchase purchase = Purchase();
-                  purchase = value.purchases[index];
-                  return Card
-                  (
-                    child: Row
-                    (
-                      children: <Widget>
-                      [
-                        Flexible
-                        (
-                          fit: FlexFit.tight,
-                          flex: 9,
-                          child: Table
-                          (
-                            defaultColumnWidth: FractionColumnWidth(.10),
-                            children: 
-                            [
-                            ],
-                          ),
-                        ),
-
-                        Flexible
-                        (
-                          flex: 1,
-                          fit: FlexFit.tight,
-                          child: PopupMenuButton
-                          (
-                            icon: Icon
-                            (
-                              Icons.more_vert
-                            ),
-                            itemBuilder: (BuildContext context)
-                            {
-                              return PopupMenuChangeCell.choices.map((String choice)
-                              {
-                                return PopupMenuItem<String>
-                                (
-                                  value: choice,
-                                  child: ListTile
-                                  (
-                                    title: Text(choice),
-                                    onTap: ()
-                                    {
-                                      changeCell(choice, value.purchases[index].documentID, context, purchase);
-                                      Navigator.pop(context);
-                                    },
-                                  )
-                                );
-                              }).toList();
-                            },
-                          )
-                        )
-                      ],
-                    )
-                  );
-                },
-              )
-            ),
-            floatingActionButton: FloatingActionButton
-            (
-              onPressed: ()
+            child: ListView.builder(
+              itemCount: value.purchases.length,
+              itemBuilder: (BuildContext context, int index)
               {
-                visibleAddPurchase();
+                Purchase purchase = Purchase();
+                purchase = value.purchases[index];
+                return Card
+                (
+                  child: Row
+                  (
+                    children: <Widget>
+                    [
+                      Flexible
+                      (
+                        fit: FlexFit.tight,
+                        flex: 9,
+                        child: Table
+                        (
+                          defaultColumnWidth: FractionColumnWidth(.10),
+                          children: 
+                          [
+                            TableRow
+                            (
+                              children: <Widget>
+                              [
+                                Text('Поставщик:', textAlign: TextAlign.center,),
+                                Text('${value.purchases[index].provider.name}', textAlign: TextAlign.center,)
+                              ]
+                            ),
+
+                            TableRow
+                            (
+                              children: <Widget>
+                              [
+                                Text('Материал:', textAlign: TextAlign.center,),
+                                Text('${value.purchases[index].material.name}', textAlign: TextAlign.center,)
+                              ]
+                            ),
+
+                            TableRow
+                            (
+                              children: <Widget>
+                              [
+                                Text('Количество материала:', textAlign: TextAlign.center,),
+                                Text('${value.purchases[index].amount}', textAlign: TextAlign.center,)
+                              ]
+                            ),
+
+                            TableRow
+                            (
+                              children: <Widget>
+                              [
+                                Text('Дата поставки:', textAlign: TextAlign.center,),
+                                Text('${value.purchases[index].date}', textAlign: TextAlign.center,)
+                              ]
+                            ),
+
+                            TableRow
+                            (
+                              children: <Widget>
+                              [
+                                Text('Затраты:', textAlign: TextAlign.center,),
+                                Text('${value.purchases[index].price} руб.', textAlign: TextAlign.center,)
+                              ]
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      Flexible
+                      (
+                        flex: 1,
+                        fit: FlexFit.tight,
+                        child: PopupMenuButton
+                        (
+                          icon: Icon
+                          (
+                            Icons.more_vert
+                          ),
+                          itemBuilder: (BuildContext context)
+                          {
+                            return PopupMenuChangeCell.choices.map((String choice)
+                            {
+                              return PopupMenuItem<String>
+                              (
+                                value: choice,
+                                child: ListTile
+                                (
+                                  title: Text(choice),
+                                  onTap: ()
+                                  {
+                                    changeCell(choice, value.purchases[index].documentID, context, purchase);
+                                    Navigator.pop(context);
+                                  },
+                                )
+                              );
+                            }).toList();
+                          },
+                        )
+                      )
+                    ],
+                  )
+                );
               },
-              child: Icon
-              (
-                Icons.add
-              ),
+            )
+          ),
+          floatingActionButton: FloatingActionButton
+          (
+            onPressed: ()
+            {
+              visibleAddPurchase();
+            },
+            child: Icon
+            (
+              Icons.add
             ),
-          );
-        },
-      )
+          ),
+        );
+      },
     );
   }
 }
@@ -170,8 +230,9 @@ class DialogAddPurchase extends StatefulWidget
   final String nameButton;
   final Purchase purchase;
   final List<MyProvider> providers;
+  final List<MyMaterial> materials;
 
-  DialogAddPurchase({this.nameButton = "Добавить", this.purchase, this.providers});
+  DialogAddPurchase({this.nameButton = "Добавить", this.purchase, this.providers, this.materials});
   @override
   _StateDialogAddPurchase createState() => _StateDialogAddPurchase();
 }
@@ -184,25 +245,37 @@ class _StateDialogAddPurchase extends State<DialogAddPurchase>
 
   
   List<MyProvider> _providers;
-  List _materials;
+  List<MyMaterial> _materials;
 
   List<DropdownMenuItem<String>> _dropDownMenuProviders;
   List<DropdownMenuItem<String>> _dropDownMenuMaterials;
 
   String _currentProvider;
+  String _currentMaterial;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
 
-    if (widget.purchase != null)
-    {
-    }
     _providers = List<MyProvider>();
     _providers = widget.providers;
     _dropDownMenuProviders = getDropDownMenuProviders();
     _currentProvider = _dropDownMenuProviders[0].value;
+
+    _materials = List<MyMaterial>();
+    _materials = widget.materials;
+    _dropDownMenuMaterials = getDropDownMenuMaterials();
+    _currentMaterial = _dropDownMenuMaterials[0].value;
+
+    if (widget.purchase != null)
+    {
+      _currentProvider = widget.purchase.provider.documentID;
+      _currentMaterial = widget.purchase.material.documentID;
+      controllerAmount.text = widget.purchase.amount.toString();
+      controllerDate.text = widget.purchase.date;
+      controllerPrice.text = widget.purchase.price.toString();
+    }
   }
   
 
@@ -220,6 +293,20 @@ class _StateDialogAddPurchase extends State<DialogAddPurchase>
     return items;
   }
 
+  List<DropdownMenuItem<String>> getDropDownMenuMaterials()
+  {
+    List<DropdownMenuItem<String>> items = new List();
+    for (MyMaterial material in _materials) 
+    {
+      items.add(new DropdownMenuItem
+      (
+          value: material.documentID,
+          child: new Text(material.name)
+      ));
+    }
+    return items;
+  }
+
   void changedDropDownItemProvider(String selectedProvider)
   {
     setState(() {
@@ -227,12 +314,50 @@ class _StateDialogAddPurchase extends State<DialogAddPurchase>
     });
   }
 
+  void changedDropDownItemMaterial(String selectedMaterial)
+  {
+    setState(() {
+      _currentMaterial = selectedMaterial; 
+      print(_currentMaterial);
+    });
+  }
+
   void addPurchase(BuildContext context)
   {
+    Purchase purchase = Purchase();
+    MyMaterial material = MyMaterial();
+    MyProvider provider = MyProvider();
+
+    material.documentID = _currentMaterial;
+    provider.documentID = _currentProvider;
+
+    purchase.provider = provider;
+    purchase.material = material;
+    purchase.amount = int.parse(controllerAmount.text);
+    purchase.date = controllerDate.text;
+    purchase.price = int.parse(controllerPrice.text);
+
+    Provider.of<AdapterPurchase>(context).add(purchase);
   }
 
   void changePurchase(BuildContext context)
   {
+    Purchase purchase = Purchase();
+    MyMaterial material = MyMaterial();
+    MyProvider provider = MyProvider();
+
+    material.documentID = _currentMaterial;
+    provider.documentID = _currentProvider;
+
+
+    purchase.documentID = widget.purchase.documentID;
+    purchase.provider = provider;
+    purchase.material = material;
+    purchase.amount = int.parse(controllerAmount.text);
+    purchase.date = controllerDate.text;
+    purchase.price = int.parse(controllerPrice.text);
+
+    Provider.of<AdapterPurchase>(context).change(purchase);
   }
   
   @override
@@ -260,6 +385,13 @@ class _StateDialogAddPurchase extends State<DialogAddPurchase>
                     value: _currentProvider,
                     items: _dropDownMenuProviders,
                     onChanged: changedDropDownItemProvider,
+                  ),
+
+                  DropdownButton
+                  (
+                    value: _currentMaterial,
+                    items: _dropDownMenuMaterials,
+                    onChanged: changedDropDownItemMaterial,
                   ),
 
                   TextField
@@ -315,6 +447,6 @@ class _StateDialogAddPurchase extends State<DialogAddPurchase>
           );
         }
       )
-    ); 
+    );
   }
 }
