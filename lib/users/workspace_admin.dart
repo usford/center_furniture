@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:furniture_center/Adapters/adapter_authorization.dart';
+import 'package:furniture_center/Adapters/adapter_users.dart';
 import 'package:furniture_center/PopupsMenu/popup_menu_settings.dart';
 import 'package:furniture_center/tables/table_furniture.dart';
 import 'package:furniture_center/tables/table_materials.dart';
@@ -8,6 +9,8 @@ import 'package:furniture_center/tables/table_provider.dart';
 import 'package:furniture_center/tables/table_purchases.dart';
 import 'package:furniture_center/tables/table_users.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/services.dart' show rootBundle;
+import 'package:csv/csv.dart';
 
 class WorkSpaceAdmin extends StatefulWidget
 {
@@ -22,6 +25,7 @@ class _StateWorkSpaceAdmin extends State<WorkSpaceAdmin>
   Widget _widget;
 
   String _tableTitle = "";
+
 
   List<String> _nameTables = 
   [
@@ -45,10 +49,80 @@ class _StateWorkSpaceAdmin extends State<WorkSpaceAdmin>
     }
   }
 
+
+  void importExcel(BuildContext context) async
+  {
+    BuildContext _context = context;
+    var chooseTable;
+    showDialog(
+      context: _context,
+      builder: (_context)
+      {
+        return AlertDialog
+        (
+          title: Text('Выберите таблицу для импорта'),
+          actions: <Widget>
+          [
+            FlatButton
+            (
+              onPressed: () async
+              {
+                var myData = await rootBundle.loadString('lib/assets/excel/abc.csv');
+
+                List<List<dynamic>> csvTable = CsvToListConverter().convert(myData);
+                var count = 0;
+                var mainField;
+                
+
+                csvTable.forEach((table)
+                {
+                  List data = List();
+                  User user = User();
+                  // print(table.length);
+                  // print(table);
+                  // table.forEach((item)
+                  // {
+                  //   //print(item);
+                  // });
+                  if (count == 0)
+                  {
+                    mainField = table;
+                  }
+                  if (count != 0)
+                  {
+                    for (int i = 0; i < table.length; i++)
+                    {
+                      print('${mainField[i]}-${table[i]}');
+                      data.add('${table[i]}');
+                    }
+                    user.email = data[0];
+                    user.password = data[1];
+                    user.type = data[2];
+                    Provider.of<AdapterUser>(context).add(user);
+                  }
+                  count++;
+                });
+                switch (chooseTable)
+                {
+                  case "Пользователи":
+                  {
+
+                    break;
+                  }
+                  default:
+                }
+                //Navigator.pop(context);
+              },
+              child: Text('Импортировать'),
+            )
+          ],
+        );
+      }
+    );
+  }
+
   void setTables()
   {
-    
-
     _nameTables.forEach((name)
     {
       _tables.add(
@@ -99,6 +173,34 @@ class _StateWorkSpaceAdmin extends State<WorkSpaceAdmin>
     setTables();
   }
 
+  Widget _default(BuildContext context)
+  {
+    return Center
+    (
+      child: Column
+      (
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>
+        [
+          FlatButton
+          (
+            color: Colors.blue,
+            onPressed: () => importExcel(context),
+            child: Text
+            (
+              'Импорт',
+              style: TextStyle
+              (
+                color: Colors.white
+              ),
+            )
+          )
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context)
   {
@@ -139,7 +241,7 @@ class _StateWorkSpaceAdmin extends State<WorkSpaceAdmin>
         break;
       }
 
-      default: _widget = Text('Выберите таблицу из списка');
+      default: _widget = _default(context);
     }
     return MaterialApp
     (
