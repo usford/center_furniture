@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:furniture_center/Adapters/adapter_authorization.dart';
+import 'package:furniture_center/workspace_registration.dart';
 import 'package:provider/provider.dart';
 
 class WorkspaceAuthorization extends StatefulWidget
@@ -75,7 +76,7 @@ class _WorkspaceAuthorizationState extends State<WorkspaceAuthorization>
 
                 FlatButton
                 (
-                  onPressed: (){},
+                  onPressed: () => Navigator.push(context, MaterialPageRoute (builder: (BuildContext _context) => WorkspaceRegistration())),
                   child: Text
                   (
                     'Регистрация',
@@ -106,6 +107,6 @@ class _WorkspaceAuthorizationState extends State<WorkspaceAuthorization>
           ],
         ),
       )
-    );  
+    );
   }
 }

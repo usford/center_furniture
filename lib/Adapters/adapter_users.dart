@@ -77,12 +77,25 @@ class AdapterUser with ChangeNotifier
   {
     usersUploaded = Completer();
 
-    Firestore.instance.collection('users').add(
+    
+
+    if (user.documentID != null)
     {
-      'email' : user.email,
-      'password': user.password,
-      'type': user.type
-    });
+      Firestore.instance.collection('users').document(user.documentID).setData(
+      {
+        'email' : user.email,
+        'password': user.password,
+        'type': user.type
+      });
+    }else
+    {
+      Firestore.instance.collection('users').add(
+      {
+        'email' : user.email,
+        'password': user.password,
+        'type': user.type
+      });
+    }
 
     usersUploaded.complete();
   }

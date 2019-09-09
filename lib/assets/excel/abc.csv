@@ -1,4 +1,4 @@
-email,password,type
-1,a,admin
-2,b,client
-3,c,client
+id;email;password;type
+1;1;a;Admin
+2;2;b;Client
+3;3;c;Client

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:furniture_center/Adapters/adapter_authorization.dart';
 import 'package:furniture_center/Adapters/adapter_furniture.dart';
+import 'package:furniture_center/Adapters/adapter_image.dart';
 import 'package:furniture_center/Adapters/adapter_material.dart';
 import 'package:furniture_center/Adapters/adapter_provider.dart';
 import 'package:furniture_center/Adapters/adapter_purchase.dart';
@@ -44,6 +45,8 @@ class _MyHomePageState extends State<MyHomePage> {
   AdapterProvider adapterProvider;
   AdapterUser adapterUser;
   AdapterPurchase adapterPurchase;
+  AdapterImage adapterImage;
+  AdapterAuthorization adapterAuthorization;
 
   _MyHomePageState()
   {
@@ -52,6 +55,8 @@ class _MyHomePageState extends State<MyHomePage> {
     adapterProvider = AdapterProvider();
     adapterUser = AdapterUser();
     adapterPurchase = AdapterPurchase();
+    adapterImage = AdapterImage();
+    adapterAuthorization = AdapterAuthorization();
   }
   @override
   Widget build(BuildContext context) 
@@ -92,11 +97,29 @@ class _MyHomePageState extends State<MyHomePage> {
       ChangeNotifierProvider<AdapterPurchase>.value(
         value: adapterPurchase,
       ),
+      ChangeNotifierProvider<AdapterImage>.value(
+        value: adapterImage,
+      ),
+      ChangeNotifierProvider<AdapterAuthorization>.value(
+        value: adapterAuthorization,
+      ),
     ];
     return MultiProvider
     (
       providers: providers,
-      child: WorkSpaceAdmin(),
+      child: Consumer<AdapterAuthorization>
+      (
+        builder: (context, value, child)
+        {
+          return MaterialApp
+          (
+            home: Scaffold
+            (
+              body: (value.auth) ? ChooseUser() : WorkspaceAuthorization()
+            ),
+          );
+        },
+      ),
     );
   }
 }

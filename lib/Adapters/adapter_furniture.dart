@@ -77,12 +77,23 @@ class AdapterFurniture with ChangeNotifier
   {
     furnituresUploaded = Completer();
 
-    Firestore.instance.collection('furnitures').add(
+    if (furniture.documentID != null)
     {
-      'name' : furniture.name,
-      'amount': furniture.amount,
-      'price': furniture.price
-    });
+      Firestore.instance.collection('furnitures').document(furniture.documentID).setData(
+      {
+        'name' : furniture.name,
+        'amount': furniture.amount,
+        'price': furniture.price
+      });
+    }else
+    {
+      Firestore.instance.collection('furnitures').add(
+      {
+        'name' : furniture.name,
+        'amount': furniture.amount,
+        'price': furniture.price
+      });
+    }
 
     furnituresUploaded.complete();
   }

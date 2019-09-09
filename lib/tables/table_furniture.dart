@@ -239,7 +239,7 @@ class _StateDialogAddFurniture extends State<DialogAddFurniture>
             title: Text((widget.furniture != null ? 'Редактирование мебели' : 'Добавление мебели')),
             content: Container
             (
-              height: MediaQuery.of(context).size.height/5,
+              height: MediaQuery.of(context).size.height/4,
               child: Column
               (
                 children: <Widget>

@@ -269,7 +269,7 @@ class _StateDialogAddUser extends State<DialogAddUser>
             title: Text(widget.user != null ? 'Редактирование пользовател' : 'Добавление пользователя'),
             content: Container
             (
-              height: MediaQuery.of(context).size.height/5,
+              height: MediaQuery.of(context).size.height/4,
               child: Column
               (
                 children: <Widget>

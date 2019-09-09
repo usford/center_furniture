@@ -75,11 +75,21 @@ class AdapterProvider with ChangeNotifier
   {
     providersUploaded = Completer();
 
-    Firestore.instance.collection('providers').add(
+    if (provider.documentID != null)
     {
-      'name' : provider.name,
-      'phone': provider.phone,
-    });
+      Firestore.instance.collection('providers').document(provider.documentID).setData(
+      {
+        'name' : provider.name,
+        'phone': provider.phone,
+      });
+    }else
+    {
+      Firestore.instance.collection('providers').add(
+      {
+        'name' : provider.name,
+        'phone': provider.phone,
+      });
+    }
 
     providersUploaded.complete();
   }

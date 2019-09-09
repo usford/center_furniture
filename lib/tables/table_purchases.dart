@@ -375,7 +375,7 @@ class _StateDialogAddPurchase extends State<DialogAddPurchase>
             title: Text(widget.purchase != null ? 'Редактирование закупки' : 'Добавление закупки'),
             content: Container
             (
-              height: MediaQuery.of(context).size.height/3,
+              height: MediaQuery.of(context).size.height/2.5,
               child: Column
               (
                 children: <Widget>

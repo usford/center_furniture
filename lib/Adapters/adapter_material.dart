@@ -74,12 +74,21 @@ class AdapterMaterial with ChangeNotifier
   {
     materialsUploaded = Completer();
 
-    Firestore.instance.collection('materials').add(
+    if (material.documentID != null)
     {
-      'name' : material.name,
-      'fabric': material.fabric,
-    });
-
+      Firestore.instance.collection('materials').document(material.documentID).setData(
+      {
+        'name' : material.name,
+        'fabric': material.fabric,
+      });
+    }else
+    {
+      Firestore.instance.collection('materials').add(
+      {
+        'name' : material.name,
+        'fabric': material.fabric,
+      });
+    }
     materialsUploaded.complete();
   }
 

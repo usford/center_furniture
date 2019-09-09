@@ -1,6 +1,13 @@
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:furniture_center/Adapters/adapter_authorization.dart';
+import 'package:furniture_center/Adapters/adapter_furniture.dart';
+import 'package:furniture_center/Adapters/adapter_image.dart';
+import 'package:furniture_center/Adapters/adapter_material.dart';
+import 'package:furniture_center/Adapters/adapter_provider.dart';
+import 'package:furniture_center/Adapters/adapter_purchase.dart';
 import 'package:furniture_center/Adapters/adapter_users.dart';
 import 'package:furniture_center/PopupsMenu/popup_menu_settings.dart';
 import 'package:furniture_center/tables/table_furniture.dart';
@@ -11,6 +18,8 @@ import 'package:furniture_center/tables/table_users.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:csv/csv.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:image_picker/image_picker.dart';
 
 class WorkSpaceAdmin extends StatefulWidget
 {
@@ -22,9 +31,65 @@ class _StateWorkSpaceAdmin extends State<WorkSpaceAdmin>
 {
   GlobalKey keyDrawer = GlobalKey();
   String _chooseTable = "";
+
+  var stateImage;
+  
   Widget _widget;
 
   String _tableTitle = "";
+
+  void selectedImage(BuildContext context)
+  {
+    BuildContext _context = context;
+    showDialog(
+      context: _context,
+      builder: (BuildContext _context)
+      {
+        return ChangeNotifierProvider<AdapterImage>
+        (
+          builder: (_) => AdapterImage(),
+          child: Consumer<AdapterImage>
+          (
+            builder: (context, value, child)
+            {
+              List<Widget> widgets = List<Widget>();
+              value.images.forEach((image)
+              {
+                widgets.add(
+                  FlatButton
+                  (
+                    onPressed: ()
+                    {
+                      setState(() {
+                        stateImage = File(image.path);
+                      });
+                      Navigator.pop(context);
+                    },
+                    child: Image.file(File(image.path)),
+                  )
+                );
+              });
+              return AlertDialog
+              (
+                title: Text('Выберите изображение'),
+                content: Container
+                (
+                  width: 300,
+                  height: 100,
+                  child: GridView.count(
+                    crossAxisCount: 2,
+                    children: widgets,
+                  ),
+                ),
+              );
+            },
+          )
+        );
+      }
+    );
+  }
+
+  
 
 
   List<String> _nameTables = 
@@ -35,6 +100,8 @@ class _StateWorkSpaceAdmin extends State<WorkSpaceAdmin>
     'Материалы',
     'Закупки'
   ];
+
+ 
 
   List<Widget> _tables = List<Widget>();
 
@@ -49,74 +116,23 @@ class _StateWorkSpaceAdmin extends State<WorkSpaceAdmin>
     }
   }
 
+  
+  void loadImage() async
+  {
+    var image = await ImagePicker.pickImage(source: ImageSource.gallery);
+    print(image.path);
+
+    Provider.of<AdapterImage>(context).add(image.path);
+  }
 
   void importExcel(BuildContext context) async
   {
     BuildContext _context = context;
-    var chooseTable;
     showDialog(
       context: _context,
       builder: (_context)
       {
-        return AlertDialog
-        (
-          title: Text('Выберите таблицу для импорта'),
-          actions: <Widget>
-          [
-            FlatButton
-            (
-              onPressed: () async
-              {
-                var myData = await rootBundle.loadString('lib/assets/excel/abc.csv');
-
-                List<List<dynamic>> csvTable = CsvToListConverter().convert(myData);
-                var count = 0;
-                var mainField;
-                
-
-                csvTable.forEach((table)
-                {
-                  List data = List();
-                  User user = User();
-                  // print(table.length);
-                  // print(table);
-                  // table.forEach((item)
-                  // {
-                  //   //print(item);
-                  // });
-                  if (count == 0)
-                  {
-                    mainField = table;
-                  }
-                  if (count != 0)
-                  {
-                    for (int i = 0; i < table.length; i++)
-                    {
-                      print('${mainField[i]}-${table[i]}');
-                      data.add('${table[i]}');
-                    }
-                    user.email = data[0];
-                    user.password = data[1];
-                    user.type = data[2];
-                    Provider.of<AdapterUser>(context).add(user);
-                  }
-                  count++;
-                });
-                switch (chooseTable)
-                {
-                  case "Пользователи":
-                  {
-
-                    break;
-                  }
-                  default:
-                }
-                //Navigator.pop(context);
-              },
-              child: Text('Импортировать'),
-            )
-          ],
-        );
+        return DialogImportExcel(context);
       }
     );
   }
@@ -175,28 +191,68 @@ class _StateWorkSpaceAdmin extends State<WorkSpaceAdmin>
 
   Widget _default(BuildContext context)
   {
-    return Center
+    return Container
     (
-      child: Column
+      decoration: BoxDecoration
       (
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>
-        [
-          FlatButton
-          (
-            color: Colors.blue,
-            onPressed: () => importExcel(context),
-            child: Text
+        image: DecorationImage
+        (
+          fit: BoxFit.cover,
+          image: (stateImage != null ) ? FileImage(stateImage) : NetworkImage('https://i.pinimg.com/736x/2d/dc/25/2ddc25914e2ae0db5311ffa41781dda1.jpg')
+        )
+      ),
+      child: Center
+      (
+        child: Column
+        (
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>
+          [
+
+            FlatButton
             (
-              'Импорт',
-              style: TextStyle
+              color: Colors.blue,
+              onPressed: () => importExcel(context),
+              child: Text
               (
-                color: Colors.white
-              ),
-            )
-          )
-        ],
+                'Импорт',
+                style: TextStyle
+                (
+                  color: Colors.white
+                ),
+              )
+            ),
+
+            FlatButton
+            (
+              color: Colors.blue,
+              onPressed: () => loadImage(),
+              child: Text
+              (
+                'Загрузить изображение',
+                style: TextStyle
+                (
+                  color: Colors.white
+                ),
+              )
+            ),
+
+            FlatButton
+            (
+              color: Colors.blue,
+              onPressed: () => selectedImage(context),
+              child: Text
+              (
+                'Выбрать изображение',
+                style: TextStyle
+                (
+                  color: Colors.white
+                ),
+              )
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -292,6 +348,251 @@ class _StateWorkSpaceAdmin extends State<WorkSpaceAdmin>
         ),
         body: _widget,
       ),
+    );
+  }
+}
+
+class DialogImportExcel extends StatefulWidget
+{ 
+  final BuildContext myContext;
+  DialogImportExcel(this.myContext);
+  @override
+  _StateDialogImportExcel createState() => _StateDialogImportExcel();
+}
+
+class _StateDialogImportExcel extends State<DialogImportExcel>
+{
+  var _selectTable = "";
+  String _chooseTableExcel = "";
+
+  List<Widget> _buttonsExcel = List<Widget>();
+
+  List<String> _nameTables = 
+  [
+    'Пользователи',
+    'Мебель',
+    'Поставщики',
+    'Материалы',
+    'Закупки'
+  ];
+
+  String myData;
+
+
+  void setButtonExcel()
+  {
+    _buttonsExcel = List<Widget>();
+    _nameTables.forEach((table)
+    {
+      _buttonsExcel.add(
+        FlatButton
+        (
+          onPressed: ()
+          {
+            setState(() {
+              _chooseTableExcel = table;
+            });
+          },
+          child: Text
+          (
+            table
+          ),
+          color: (_chooseTableExcel == table) ? Colors.blue : Colors.white,
+        )
+      );
+    });
+  }
+
+  void openFile() async
+  {
+    var _path = await FilePicker.getFile(type: FileType.ANY);
+    print(_path);
+    String content = await _path.readAsString();
+    print(content);
+    myData = content;
+  }
+
+  Widget build(BuildContext context)
+  {
+    _selectTable = "";
+    setButtonExcel();
+    return AlertDialog
+    (
+      title: Text('Выберите таблицу для импорта'),
+      content: Column
+      (children: _buttonsExcel,),
+      actions: <Widget>
+      [
+        FlatButton
+        (
+          onPressed: () => openFile(),
+          child: Text('Загрузить файл'),
+        ),
+
+        FlatButton
+        (
+          onPressed: () async
+          {
+
+            List<List<dynamic>> csvTable = CsvToListConverter().convert(myData.toString().replaceAll(';', ','));
+            var count = 0;
+            var mainField;
+            
+            switch (_chooseTableExcel)
+            {
+              case "Пользователи":
+              {
+                csvTable.forEach((table)
+                {
+                  List data = List();
+                  User user = User();
+
+                  if (count == 0)
+                  {
+                    mainField = table;
+                  }
+                  if (count != 0)
+                  {
+                    for (int i = 0; i < table.length; i++)
+                    {
+                      //print('${mainField[i]}-${table[i]}');
+                      data.add('${table[i]}');
+                    }
+                    user.documentID = data[0];
+                    user.email = data[1];
+                    user.password = data[2];
+                    user.type = data[3];   
+                    Provider.of<AdapterUser>(widget.myContext).add(user);
+                  }
+                  count++;
+                });
+                break;
+              }
+
+              case "Материалы":
+              {
+                csvTable.forEach((table)
+                {
+                  List data = List();
+                  MyMaterial myMaterial = MyMaterial();
+
+                  if (count == 0)
+                  {
+                    mainField = table;
+                  }
+                  if (count != 0)
+                  {
+                    for (int i = 0; i < table.length; i++)
+                    {
+                      //print('${mainField[i]}-${table[i]}');
+                      data.add('${table[i]}');
+                    }
+                    myMaterial.documentID = data[0];
+                    myMaterial.name = data[1];
+                    myMaterial.fabric = data[2]; 
+                    Provider.of<AdapterMaterial>(widget.myContext).add(myMaterial);
+                  }
+                  count++;
+                });
+                break;
+              }
+
+              case "Мебель":
+              {
+                csvTable.forEach((table)
+                {
+                  List data = List();
+                  Furniture furniture = Furniture();
+
+                  if (count == 0)
+                  {
+                    mainField = table;
+                  }
+                  if (count != 0)
+                  {
+                    for (int i = 0; i < table.length; i++)
+                    {
+                      //print('${mainField[i]}-${table[i]}');
+                      data.add('${table[i]}');
+                    }
+                    furniture.documentID = data[0];
+                    furniture.name = data[1];
+                    furniture.amount = data[2]; 
+                    furniture.price = data[3];
+                    Provider.of<AdapterFurniture>(widget.myContext).add(furniture);
+                  }
+                  count++;
+                });
+                break;
+              }
+
+              case "Поставщики":
+              {
+                csvTable.forEach((table)
+                {
+                  List data = List();
+                  MyProvider provider = MyProvider();
+
+                  if (count == 0)
+                  {
+                    mainField = table;
+                  }
+                  if (count != 0)
+                  {
+                    for (int i = 0; i < table.length; i++)
+                    {
+                      //print('${mainField[i]}-${table[i]}');
+                      data.add('${table[i]}');
+                    }
+                    provider.documentID = data[0];
+                    provider.name = data[1];
+                    provider.phone = data[2]; 
+                    Provider.of<AdapterProvider>(widget.myContext).add(provider);
+                  }
+                  count++;
+                });
+                break;
+              }
+
+              case "Поставщики":
+              {
+                csvTable.forEach((table)
+                {
+                  List data = List();
+                  Purchase purchase = Purchase();
+
+                  if (count == 0)
+                  {
+                    mainField = table;
+                  }
+                  if (count != 0)
+                  {
+                    for (int i = 0; i < table.length; i++)
+                    {
+                      //print('${mainField[i]}-${table[i]}');
+                      data.add('${table[i]}');
+                    }
+                    purchase.documentID = data[0];
+                    purchase.material = data[1];
+                    purchase.provider = data[2]; 
+                    purchase.date = data[3]; 
+                    purchase.amount = data[4]; 
+                    purchase.price = data[5]; 
+                    Provider.of<AdapterPurchase>(widget.myContext).add(purchase);
+                  }
+                  count++;
+                });
+                break;
+              }
+
+              default: Navigator.pop(context);
+            }
+            Navigator.pop(context);
+            //Navigator.pop(context);
+          },
+          child: Text('Импортировать'),
+        )
+      ],
     );
   }
 }

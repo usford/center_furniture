@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:furniture_center/global_state.dart';
 import 'package:furniture_center/constants.dart';
 import 'package:furniture_center/users/workspace_admin.dart';
+import 'package:furniture_center/users/workspace_client.dart';
 
 class ChooseUser extends StatefulWidget
 {
@@ -20,7 +21,18 @@ class _StateChooseUser extends State<ChooseUser>
     {
       case Constants.admin:
       {
-        return WorkSpaceAdmin();
+        return MaterialApp
+        (
+          home: WorkSpaceAdmin(),
+        );
+      }
+
+      case Constants.client:
+      {
+        return MaterialApp
+        (
+          home: WorkspaceClient(),
+        );
       }
     }
   }
