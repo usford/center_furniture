@@ -154,7 +154,7 @@ class AdapterPurchase with ChangeNotifier
 
   void add(Purchase purchase)
   {
-    purchasesUploaded = Completer();
+    //purchasesUploaded = Completer();
 
     Firestore.instance.collection('purchases').add(
     {
@@ -165,7 +165,7 @@ class AdapterPurchase with ChangeNotifier
       'price': purchase.price
     });
 
-    purchasesUploaded.complete();
+    //purchasesUploaded.complete();
   }
 
   void remove(String purchaseID)

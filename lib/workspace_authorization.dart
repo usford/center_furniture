@@ -25,7 +25,7 @@ class _WorkspaceAuthorizationState extends State<WorkspaceAuthorization>
     (
       child: Container
       (
-        width: MediaQuery.of(context).size.width/2,
+        width: MediaQuery.of(context).size.width/1.5,
         child: Column
         (
           crossAxisAlignment: CrossAxisAlignment.center,

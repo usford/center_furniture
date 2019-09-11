@@ -1,4 +1,5 @@
 
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -37,6 +38,42 @@ class _StateWorkSpaceAdmin extends State<WorkSpaceAdmin>
   Widget _widget;
 
   String _tableTitle = "";
+
+  void report(BuildContext context) async
+  {
+    String body = "#;Provider;Material;Amount;Date;Price;Sum \n";
+    var purchases = Provider.of<AdapterPurchase>(context).purchases;
+    int total = 0;
+    for (int i = 0; i < purchases.length; i++)
+    {
+      body += "${i + 1};${purchases[i].provider.name};${purchases[i].material.name};${purchases[i].amount};${purchases[i].date};${purchases[i].price};${purchases[i].amount * purchases[i].price} \n";
+      total += purchases[i].amount * purchases[i].price;
+    }
+
+
+    body += ";;;;;Total;$total \n";
+    body += ";;;;;; \n ;;;;;; \n";
+
+    body += "Only ${purchases.length} providers with costs in $total \n";
+
+    body += ";;;;;; \n ;;;;;; \n ;;;;;; \n";
+    body += "Supervisor _____ ;;;Accountant _____";
+
+    print(body);
+
+    // String body = "#;Поставщики;Материал;Количество;Дата;Цена;Сумма \n" +
+    // "1;postavshik 2;shurup;2;10.09.2019;2000;4000 \n" +
+    // "2;postavshik 1;shurup;1234;09.09.2019;3292;4062328 \n" +
+    // ";;;;;Итого;4066328 \n" +
+    // ";;;;;;; \n" +
+    // ";;;;;; \n" +
+    // "Всего 2 поставщиков с затратами в 4066328 рублей \n" +
+    // "Руководитель_____ ;;;;Buhgalter_____;;;";
+
+    var _path = await FilePicker.getFile(type: FileType.ANY);
+    _path.writeAsString(body);
+  }
+
 
   void selectedImage(BuildContext context)
   {
@@ -245,6 +282,20 @@ class _StateWorkSpaceAdmin extends State<WorkSpaceAdmin>
               child: Text
               (
                 'Выбрать изображение',
+                style: TextStyle
+                (
+                  color: Colors.white
+                ),
+              )
+            ),
+
+            FlatButton
+            (
+              color: Colors.blue,
+              onPressed: () => report(context),
+              child: Text
+              (
+                'Отчёт',
                 style: TextStyle
                 (
                   color: Colors.white
