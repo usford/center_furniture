@@ -439,7 +439,7 @@ class _StateDialogAddPurchase extends State<DialogAddPurchase>
                       changePurchase(context);
                       break;
                   }
-                  //Navigator.pop(context);
+                  Navigator.pop(context);
                 },
                 child: Text(widget.nameButton),
               )

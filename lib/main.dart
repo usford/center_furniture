@@ -3,9 +3,12 @@ import 'package:furniture_center/Adapters/adapter_authorization.dart';
 import 'package:furniture_center/Adapters/adapter_furniture.dart';
 import 'package:furniture_center/Adapters/adapter_image.dart';
 import 'package:furniture_center/Adapters/adapter_material.dart';
+import 'package:furniture_center/Adapters/adapter_orders.dart';
 import 'package:furniture_center/Adapters/adapter_provider.dart';
 import 'package:furniture_center/Adapters/adapter_purchase.dart';
+import 'package:furniture_center/Adapters/adapter_stock.dart';
 import 'package:furniture_center/Adapters/adapter_users.dart';
+import 'package:furniture_center/Adapters/adapter_write_orders.dart';
 import 'package:furniture_center/choouse_user.dart';
 import 'package:furniture_center/users/workspace_admin.dart';
 import 'package:furniture_center/workspace_authorization.dart';
@@ -47,6 +50,9 @@ class _MyHomePageState extends State<MyHomePage> {
   AdapterPurchase adapterPurchase;
   AdapterImage adapterImage;
   AdapterAuthorization adapterAuthorization;
+  AdapterOrders adapterOrders;
+  AdapterWriteOrder adapterWriteOrder;
+  AdapterStock adapterStock;
 
   _MyHomePageState()
   {
@@ -57,6 +63,9 @@ class _MyHomePageState extends State<MyHomePage> {
     adapterPurchase = AdapterPurchase();
     adapterImage = AdapterImage();
     adapterAuthorization = AdapterAuthorization();
+    adapterOrders = AdapterOrders();
+    adapterWriteOrder = AdapterWriteOrder();
+    adapterStock = AdapterStock();
   }
   @override
   Widget build(BuildContext context) 
@@ -102,6 +111,15 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       ChangeNotifierProvider<AdapterAuthorization>.value(
         value: adapterAuthorization,
+      ),
+      ChangeNotifierProvider<AdapterOrders>.value(
+        value: adapterOrders,
+      ),
+      ChangeNotifierProvider<AdapterWriteOrder>.value(
+        value: adapterWriteOrder,
+      ),
+      ChangeNotifierProvider<AdapterStock>.value(
+        value: adapterStock,
       ),
     ];
     return MultiProvider

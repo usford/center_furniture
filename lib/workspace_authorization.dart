@@ -94,7 +94,32 @@ class _WorkspaceAuthorizationState extends State<WorkspaceAuthorization>
             FlatButton
             (
               color: Colors.blue,
-              onPressed: () => Provider.of<AdapterAuthorization>(context).checkAuthorization(controllerEmail.text, controllerPassword.text),
+              onPressed: () async
+              {
+                 bool check = await Provider.of<AdapterAuthorization>(context).checkAuthorization(controllerEmail.text, controllerPassword.text);
+                 if (!check)
+                 {
+                   showDialog(
+                     context: context,
+                     builder: (BuildContext context)
+                     {
+                       return AlertDialog
+                       (
+                         title: Text('Ошибка'),
+                         content: Text('Неверно введённый email или пароль'),
+                         actions: <Widget>
+                         [
+                           FlatButton
+                           (
+                             onPressed: () => Navigator.pop(context),
+                             child: Text('Ок'),
+                           )
+                         ],
+                       );
+                     }
+                   );
+                 }
+              },
               child: Text
               (
                 'Авторизоваться',
