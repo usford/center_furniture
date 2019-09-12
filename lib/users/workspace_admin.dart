@@ -149,6 +149,13 @@ class _StateWorkSpaceAdmin extends State<WorkSpaceAdmin>
       case PopupMenuSettingsAdmin.exit:
       {
         Provider.of<AdapterAuthorization>(context).auth = false;
+        break;
+      }
+      case PopupMenuSettingsAdmin.main:
+      {
+        setState(() {
+         _chooseTable = "Главная"; 
+        });
       }
     }
   }

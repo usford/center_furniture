@@ -68,7 +68,14 @@ class AdapterPurchase with ChangeNotifier
               purchase.price = documentChange.document.data['price'];
 
               _purchases.add(purchase);
-              notifyListeners();
+              
+              try
+              {
+                notifyListeners();
+              }catch (e)
+              {
+                print(e);
+              }
 
               break;
             }
@@ -90,50 +97,70 @@ class AdapterPurchase with ChangeNotifier
                 await purchasesUploaded.future;
               }
 
-              // _purchases.forEach((purchase) async
-              // {
-              //   if (documentChange.document.documentID == purchase.documentID)
-              //   {
-              //     await Firestore.instance.collection('providers').getDocuments().then((body)
-              //     {
-              //       body.documents.forEach((doc)
-              //       {
-              //         if (doc.documentID == purchase.provider.documentID)
-              //         {
-              //           provider.documentID = documentChange.document.data['provider'];
-              //           provider.name = doc.data['name'];
-              //           provider.phone = doc.data['phone'];
-              //           purchase.provider = provider;
-              //         }
-              //       });
-              //     });
+              _purchases.forEach((purchase) async
+              {
+                if (documentChange.document.documentID == purchase.documentID)
+                {
+                  await Firestore.instance.collection('providers').getDocuments().then((body)
+                  {
+                    body.documents.forEach((doc)
+                    {
+                      if (doc.documentID == purchase.provider.documentID)
+                      {
+                        provider.documentID = documentChange.document.data['provider'];
+                        provider.name = doc.data['name'];
+                        provider.phone = doc.data['phone'];
+                        purchase.provider = provider;
+                        try
+                        {
+                          notifyListeners();
+                        }catch (e)
+                        {
+                          print(e);
+                        }
+                      }
+                    });
+                  });
 
                   
 
-              //     await Firestore.instance.collection('materials').getDocuments().then((body)
-              //     {
-              //       body.documents.forEach((doc)
-              //       {
-              //         //print('${doc.documentID} - ${purchase.material.documentID}');
-              //         if (doc.documentID == purchase.material.documentID)
-              //         {
-              //           //print('найден материал');
-              //           material.documentID = documentChange.document.data['material'];
-              //           material.name = doc.data['name'];
-              //           material.fabric = doc.data['fabric'];
-              //           purchase.material = material;
-              //         }
-              //       });
-              //     });
+                  await Firestore.instance.collection('materials').getDocuments().then((body)
+                  {
+                    body.documents.forEach((doc)
+                    {
+                      //print('${doc.documentID} - ${purchase.material.documentID}');
+                      if (doc.documentID == purchase.material.documentID)
+                      {
+                        //print('найден материал');
+                        material.documentID = documentChange.document.data['material'];
+                        material.name = doc.data['name'];
+                        material.fabric = doc.data['fabric'];
+                        purchase.material = material;
+                        try
+                        {
+                          notifyListeners();
+                        }catch (e)
+                        {
+                          print(e);
+                        }
+                      }
+                    });
+                  });
 
                   
-              //     purchase.amount = documentChange.document.data['amount'];
-              //     purchase.date = documentChange.document.data['date'];
-              //     purchase.price = documentChange.document.data['price'];
-              //   }
+                  purchase.amount = documentChange.document.data['amount'];
+                  purchase.date = documentChange.document.data['date'];
+                  purchase.price = documentChange.document.data['price'];
+                  try
+                  {
+                    notifyListeners();
+                  }catch (e)
+                  {
+                    print(e);
+                  }
+                }
                 
-              // });
-              notifyListeners(); 
+              });
               break;
             }
           }

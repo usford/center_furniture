@@ -239,6 +239,7 @@ class DialogAddPurchase extends StatefulWidget
 
 class _StateDialogAddPurchase extends State<DialogAddPurchase>
 {
+  GlobalKey alertKey = GlobalKey();
   TextEditingController controllerAmount = TextEditingController();
   TextEditingController controllerDate = TextEditingController();
   TextEditingController controllerPrice = TextEditingController();
@@ -372,6 +373,7 @@ class _StateDialogAddPurchase extends State<DialogAddPurchase>
         {
           return AlertDialog
           (
+            key: alertKey,
             title: Text(widget.purchase != null ? 'Редактирование закупки' : 'Добавление закупки'),
             content: Container
             (
@@ -439,7 +441,7 @@ class _StateDialogAddPurchase extends State<DialogAddPurchase>
                       changePurchase(context);
                       break;
                   }
-                  //Navigator.pop(context);
+                  Navigator.pop(alertKey.currentContext);
                 },
                 child: Text(widget.nameButton),
               )
