@@ -13,6 +13,7 @@ import 'package:furniture_center/Adapters/adapter_users.dart';
 import 'package:furniture_center/PopupsMenu/popup_menu_settings.dart';
 import 'package:furniture_center/tables/table_furniture.dart';
 import 'package:furniture_center/tables/table_materials.dart';
+import 'package:furniture_center/tables/table_orders.dart';
 import 'package:furniture_center/tables/table_provider.dart';
 import 'package:furniture_center/tables/table_purchases.dart';
 import 'package:furniture_center/tables/table_users.dart';
@@ -41,12 +42,12 @@ class _StateWorkSpaceAdmin extends State<WorkSpaceAdmin>
 
   void report(BuildContext context) async
   {
-    String body = "#;Provider;Material;Amount;Date;Price;Sum \n";
+    String body = "#;Material;Amount;Price;Sum \n";
     var purchases = Provider.of<AdapterPurchase>(context).purchases;
     int total = 0;
     for (int i = 0; i < purchases.length; i++)
     {
-      body += "${i + 1};${purchases[i].provider.name};${purchases[i].material.name};${purchases[i].amount};${purchases[i].date};${purchases[i].price};${purchases[i].amount * purchases[i].price} \n";
+      body += "${i + 1};${purchases[i].material.name};${purchases[i].amount};${purchases[i].price};${purchases[i].amount * purchases[i].price} \n";
       total += purchases[i].amount * purchases[i].price;
     }
 
@@ -135,7 +136,8 @@ class _StateWorkSpaceAdmin extends State<WorkSpaceAdmin>
     'Мебель',
     'Поставщики',
     'Материалы',
-    'Закупки'
+    'Закупки',
+    'Заказы'
   ];
 
  
@@ -151,11 +153,14 @@ class _StateWorkSpaceAdmin extends State<WorkSpaceAdmin>
         Provider.of<AdapterAuthorization>(context).auth = false;
         break;
       }
+
       case PopupMenuSettingsAdmin.main:
       {
         setState(() {
-         _chooseTable = "Главная"; 
+         _chooseTable = "Главная";
+         _tableTitle = "Главная"; 
         });
+        break;
       }
     }
   }
@@ -355,7 +360,18 @@ class _StateWorkSpaceAdmin extends State<WorkSpaceAdmin>
         break;
       }
 
-      default: _widget = _default(context);
+      case "Заказы":
+      {
+        _widget = TableOrder();
+        _tableTitle = "Заказы";
+        break;
+      }
+
+      default: 
+      {
+        _widget = _default(context);
+        _tableTitle = "Главная";
+      }
     }
     return MaterialApp
     (

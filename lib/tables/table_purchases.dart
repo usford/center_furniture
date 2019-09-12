@@ -441,7 +441,7 @@ class _StateDialogAddPurchase extends State<DialogAddPurchase>
                       changePurchase(context);
                       break;
                   }
-                  Navigator.pop(alertKey.currentContext);
+                  Navigator.pop(context);
                 },
                 child: Text(widget.nameButton),
               )

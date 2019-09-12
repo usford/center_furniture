@@ -9,10 +9,10 @@ class AdapterAuthorization with ChangeNotifier
   bool _auth = false;
   GlobalState _globalState = GlobalState();
 
-  void checkAuthorization(String email, String password) async
+  Future<bool> checkAuthorization(String email, String password) async
   {
     QuerySnapshot documents = await Firestore.instance.collection('users').getDocuments();
-
+    bool check = false;
     documents.documents.forEach((doc)
     {
       if (doc.data['email'] == email && doc.data['password'] == password)
@@ -26,10 +26,13 @@ class AdapterAuthorization with ChangeNotifier
         
         _globalState.user = user;
         this.auth = true;
+        check = true;
         _globalState.userType = doc.data['type'];
         print('Прошёл регистрацию');
       }
     });
+
+    return check;
   }
 
   bool get auth {

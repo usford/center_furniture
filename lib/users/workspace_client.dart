@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:furniture_center/Adapters/adapter_authorization.dart';
 import 'package:furniture_center/PopupsMenu/popup_menu_settings.dart';
 import 'package:furniture_center/global_state.dart';
+import 'package:furniture_center/users/client/write_order.dart';
 import 'package:provider/provider.dart';
 
 class WorkspaceClient extends StatefulWidget
@@ -17,7 +18,9 @@ class _StateWorkspaceClient extends State<WorkspaceClient>
   GlobalState _globalState = GlobalState();
   GlobalKey keyDrawer = GlobalKey();
 
+  Widget _widget;
   String _chooseTable;
+  String _chooseTitle;
 
   @override
   void initState() {
@@ -33,6 +36,15 @@ class _StateWorkspaceClient extends State<WorkspaceClient>
       case PopupMenuSettingsAdmin.exit:
       {
         Provider.of<AdapterAuthorization>(context).auth = false;
+        break;
+      }
+
+      case PopupMenuSettingsAdmin.main:
+      {
+        
+        setState(() {
+          _chooseTable = "Главная";
+        });
       }
     }
   }
@@ -89,17 +101,41 @@ class _StateWorkspaceClient extends State<WorkspaceClient>
     });
   }
 
+  Widget _default(BuildContext context)
+  {
+    return Center
+    (
+      child: Text('Главная'),
+    );
+  }
+
   
   @override
   Widget build(BuildContext context)
   {
+    switch(_chooseTable)
+    {
+      case "Сделать заказ":
+      {
+        _widget = WriteOrder();
+        _chooseTitle = "Заказ";
+        break;
+      }
+
+      default:
+      {
+        _widget = _default(context);
+        _chooseTitle = _globalState.user.email;
+        break;
+      }
+    }
     return MaterialApp
     (
       home: Scaffold
       (
         appBar: AppBar
         (
-          title: Text(_globalState.user.email),
+          title: Text(_chooseTitle),
           backgroundColor: Colors.blue,
           actions: <Widget>
           [
@@ -139,6 +175,8 @@ class _StateWorkspaceClient extends State<WorkspaceClient>
             ),
           ),
         ),
+
+        body: _widget,
 
       ),
     );

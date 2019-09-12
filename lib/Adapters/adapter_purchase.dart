@@ -68,7 +68,6 @@ class AdapterPurchase with ChangeNotifier
               purchase.price = documentChange.document.data['price'];
 
               _purchases.add(purchase);
-              
               try
               {
                 notifyListeners();
@@ -76,6 +75,8 @@ class AdapterPurchase with ChangeNotifier
               {
                 print(e);
               }
+              
+              
 
               break;
             }
@@ -161,6 +162,7 @@ class AdapterPurchase with ChangeNotifier
                 }
                 
               });
+              
               break;
             }
           }
