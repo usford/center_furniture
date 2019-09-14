@@ -23,12 +23,29 @@ class AdapterStock with ChangeNotifier
             case 'DocumentChangeType.added':
             {
               Stock stock = Stock();
+              MyMaterial material = MyMaterial();
 
               stock.documentID = documentChange.document.documentID;
-              stock.material = documentChange.document.data['material'];
+
+              await Firestore.instance.collection('materials').getDocuments().then((body)
+              {
+                body.documents.forEach((doc)
+                {
+                  if (doc.documentID == documentChange.document.data['material'])
+                  {
+                    material.documentID = doc.documentID;
+                    material.name = doc.data['name'];
+                    material.fabric = doc.data['fabric'];
+                  }
+                });
+              });
+              stock.material = material;
               stock.amount = documentChange.document.data['amount'];
               stock.price = documentChange.document.data['price'];
               stock.sum = documentChange.document.data['sum'];
+
+
+              _stock.add(stock);
 
               notifyListeners();
 
@@ -44,17 +61,37 @@ class AdapterStock with ChangeNotifier
 
             case 'DocumentChangeType.modified':
             {
+              MyMaterial material = MyMaterial();
+              await Firestore.instance.collection('materials').getDocuments().then((body)
+              {
+                body.documents.forEach((doc)
+                {
+                  if (doc.documentID == documentChange.document.data['material'])
+                  {
+                    material.documentID = doc.documentID;
+                    material.name = doc.data['name'];
+                    material.fabric = doc.data['fabric'];
+                  }
+                });
+              });
+
               _stock.forEach((stock)
               {
                 if (stock.documentID == documentChange.document.documentID)
                 {
-                  stock.material = documentChange.document.data['material'];
+                  stock.material = material;
                   stock.amount = documentChange.document.data['amount'];
                   stock.price = documentChange.document.data['price'];
                   stock.sum = documentChange.document.data['sum'];
                 }
               });
-              notifyListeners();
+              try
+              {
+                notifyListeners();
+              }catch(e)
+              {
+                print(e);
+              }
               break;
             }
           }
@@ -82,7 +119,7 @@ class AdapterStock with ChangeNotifier
         'material': stock.material.documentID,
         'amount': stock.amount,
         'price': stock.price,
-        'sum': stock.price
+        'sum': stock.sum
       }
     );
 
@@ -98,14 +135,14 @@ class AdapterStock with ChangeNotifier
     stockUploaded.complete();
   }
 
-  void changeUser(Stock stock)
+  void change(Stock stock)
   {
-    Firestore.instance.collection('users').document(stock.documentID).updateData(
+    Firestore.instance.collection('stock').document(stock.documentID).updateData(
     {
       'material': stock.material.documentID,
       'amount': stock.amount,
       'price': stock.price,
-      'sum': stock.price
+      'sum': stock.sum
     }
     );
   }

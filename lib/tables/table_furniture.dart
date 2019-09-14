@@ -3,7 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:furniture_center/Adapters/adapter_furniture.dart';
+import 'package:furniture_center/Adapters/adapter_material.dart';
+import 'package:furniture_center/Adapters/adapter_materials_furniture.dart';
 import 'package:furniture_center/PopupsMenu/popup_menu_change_cell.dart';
+import 'package:furniture_center/PopupsMenu/popup_menu_fruniture.dart';
 import 'package:provider/provider.dart';
 
 class TableFurniture extends StatefulWidget
@@ -14,6 +17,7 @@ class TableFurniture extends StatefulWidget
 
 class _StateTableFurniture extends State<TableFurniture>
 { 
+  List<MyMaterial> _materials;
   void visibleAddFurniture()
   {
     showDialog(
@@ -29,7 +33,7 @@ class _StateTableFurniture extends State<TableFurniture>
   {
     switch(choice)
     {
-      case PopupMenuChangeCell.edit:
+      case PopupMenuFurniture.edit:
       {
         print('Редактировать');
         showDialog(
@@ -42,17 +46,47 @@ class _StateTableFurniture extends State<TableFurniture>
         break;
       }
 
-      case PopupMenuChangeCell.delete:
+      case PopupMenuFurniture.delete:
       {
         print('Удалить');
         Provider.of<AdapterFurniture>(context).remove(id);
         break;
       }
+
+      case PopupMenuFurniture.materials:
+      {
+        showDialog(
+          context: context,
+          builder: (BuildContext context)
+          {
+            return DialogMaterials(furniture: furniture, materials: _materials);
+          }
+        );
+        break;
+      }
     }
+  }
+
+  void getMaterial(BuildContext context)
+  {
+    _materials = List<MyMaterial>();
+    Provider.of<AdapterMaterial>(context).materials.forEach((material)
+    {
+      //print(provider.documentID);
+      _materials.add(
+        MyMaterial
+        (
+          documentID: material.documentID,
+          name: material.name,
+          fabric: material.fabric
+        )
+      );
+    });
   }
   @override
   Widget build(BuildContext context)
   {
+    getMaterial(context);
     return ChangeNotifierProvider<AdapterFurniture>
     (
       builder: (_) => AdapterFurniture(),
@@ -127,7 +161,7 @@ class _StateTableFurniture extends State<TableFurniture>
                             ),
                             itemBuilder: (BuildContext context)
                             {
-                              return PopupMenuChangeCell.choices.map((String choice)
+                              return PopupMenuFurniture.choices.map((String choice)
                               {
                                 return PopupMenuItem<String>
                                 (
@@ -174,6 +208,7 @@ class DialogAddFurniture extends StatefulWidget
 {
   final String nameButton;
   final Furniture furniture;
+
 
   DialogAddFurniture({this.nameButton = "Добавить", this.furniture});
   @override
@@ -226,7 +261,6 @@ class _StateDialogAddFurniture extends State<DialogAddFurniture>
   @override
   Widget build(BuildContext context)
   {
-
     return ChangeNotifierProvider<AdapterFurniture>
     (
       builder: (_) => AdapterFurniture(),
@@ -287,6 +321,306 @@ class _StateDialogAddFurniture extends State<DialogAddFurniture>
                     
                     case "Редактировать":
                       changeFurniture(context);
+                      break;
+                  }
+                  Navigator.pop(context);
+                },
+                child: Text(widget.nameButton),
+              )
+            ],
+          );
+        }
+      )
+    ); 
+  }
+}
+
+class DialogMaterials extends StatefulWidget
+{
+  final Furniture furniture;
+  final List<MyMaterial> materials;
+  DialogMaterials({this.furniture, this.materials});
+  @override
+  _StateDialogMaterials createState() => _StateDialogMaterials();
+}
+
+class _StateDialogMaterials extends State<DialogMaterials>
+{
+  void changeCell(String choice, String id, BuildContext context, Furniture furniture, MyMaterial material)
+  {
+    switch(choice)
+    {
+      case PopupMenuChangeCell.edit:
+      {
+        print('Редактировать');
+        showDialog(
+          context: context,
+          builder: (BuildContext context)
+          {
+            return DialogAddFurniture(nameButton: 'Редактировать', furniture: furniture,);
+          }
+        );
+        break;
+      }
+
+      case PopupMenuChangeCell.delete:
+      {
+        print('Удалить');
+        Provider.of<AdapterMaterialsFurniture>(context).remove(material.documentID, furniture);
+        break;
+      }
+    }
+  }
+  void visibleAddMaterials()
+  {
+    showDialog(
+      context: context,
+      builder: (BuildContext context)
+      {
+        return DialogAddMaterial(materials: widget.materials, furniture: widget.furniture,);
+      }
+    );
+  }
+  @override
+  Widget build(BuildContext context)
+  {
+    
+    return ChangeNotifierProvider<AdapterMaterialsFurniture>
+    (
+      builder: (_) => AdapterMaterialsFurniture(furnitureID: widget.furniture.documentID),
+      child: Consumer<AdapterMaterialsFurniture>
+      (
+        builder: (context, value, child)
+        {
+          return Scaffold
+          (
+            appBar: AppBar
+            (
+              title: Text("${widget.furniture.name}"),
+              actions: <Widget>
+              [
+                
+              ],
+            ),
+            body: Center
+            (
+              child: ListView.builder(
+                itemCount: value.materials.length,
+                itemBuilder: (BuildContext context, int index)
+                {
+                  MyMaterial material = MyMaterial();
+                  material = value.materials[index];
+                  return Card
+                  (
+                    child: Row
+                    (
+                      children: <Widget>
+                      [
+                        Flexible
+                        (
+                          fit: FlexFit.tight,
+                          flex: 9,
+                          child: Table
+                          (
+                            defaultColumnWidth: FractionColumnWidth(.10),
+                            children: 
+                            [
+                              TableRow
+                              (
+                                children: <Widget>
+                                [
+                                  Text('Название материала:', textAlign: TextAlign.center,),
+                                  Text('${material.name}', textAlign: TextAlign.center,)
+                                ]
+                              ),
+
+                              TableRow
+                              (
+                                children: <Widget>
+                                [
+                                  Text('Из чего сделан:', textAlign: TextAlign.center,),
+                                  Text('${material.fabric}', textAlign: TextAlign.center,)
+                                ]
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        Flexible
+                        (
+                          flex: 1,
+                          fit: FlexFit.tight,
+                          child: PopupMenuButton
+                          (
+                            icon: Icon
+                            (
+                              Icons.more_vert
+                            ),
+                            itemBuilder: (BuildContext context)
+                            {
+                              return PopupMenuChangeCell.choices.map((String choice)
+                              {
+                                return PopupMenuItem<String>
+                                (
+                                  value: choice,
+                                  child: ListTile
+                                  (
+                                    title: Text(choice),
+                                    onTap: ()
+                                    {
+                                      changeCell(choice, value.materials[index].documentID, context, widget.furniture, material);
+                                      Navigator.pop(context);
+                                    },
+                                  )
+                                );
+                              }).toList();
+                            },
+                          )
+                        )
+                      ],
+                    )
+                  );
+                },
+              )
+            ),
+            floatingActionButton: FloatingActionButton
+            (
+              onPressed: ()
+              {
+                visibleAddMaterials();
+              },
+              child: Icon
+              (
+                Icons.add
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class DialogAddMaterial extends StatefulWidget
+{
+  final String nameButton;
+  final MyMaterial material;
+  final List<MyMaterial> materials;
+  final Furniture furniture;
+
+  DialogAddMaterial({this.nameButton = "Добавить", this.material, this.materials, this.furniture});
+  @override
+  _StateDialogAddMaterial createState() => _StateDialogAddMaterial();
+}
+
+class _StateDialogAddMaterial extends State<DialogAddMaterial>
+{
+  AdapterMaterial adapterMaterial;
+  AdapterMaterialsFurniture adapterMaterialsFurniture;
+  List<MyMaterial> _materials;
+  List<DropdownMenuItem<String>> _dropDownMenuMaterials;
+  String _currentMaterial;
+  
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _materials = List<MyMaterial>();
+    _materials = widget.materials;
+    _dropDownMenuMaterials = getDropDownMenuMaterials();
+    _currentMaterial = _dropDownMenuMaterials[0].value;
+    adapterMaterial = AdapterMaterial();
+    adapterMaterialsFurniture = AdapterMaterialsFurniture(furnitureID: widget.furniture.documentID);
+  }
+
+  void addMaterial(BuildContext context)
+  {
+    MyMaterial material = MyMaterial();
+    List<MyMaterial> materials =  Provider.of<AdapterMaterial>(context).materials.where((material) => material.documentID == _currentMaterial).toList();
+
+    material = materials[0];
+
+    Provider.of<AdapterMaterialsFurniture>(context).add(widget.furniture, material);
+  }
+
+  void changeMaterial(BuildContext context)
+  {
+  }
+
+  List<DropdownMenuItem<String>> getDropDownMenuMaterials()
+  {
+    List<DropdownMenuItem<String>> items = new List();
+    for (MyMaterial material in _materials) 
+    {
+      items.add(new DropdownMenuItem
+      (
+          value: material.documentID,
+          child: new Text(material.name)
+      ));
+    }
+    return items;
+  }
+
+  void changedDropDownItemMaterial(String selectedMaterial)
+  {
+    setState(() {
+      _currentMaterial = selectedMaterial; 
+      print(_currentMaterial);
+    });
+  }
+  
+  @override
+  Widget build(BuildContext context)
+  {
+    var providers = <SingleChildCloneableWidget>
+    [
+      ChangeNotifierProvider<AdapterMaterial>.value(
+        value: adapterMaterial,
+      ),
+      ChangeNotifierProvider<AdapterMaterialsFurniture>.value(
+        value: adapterMaterialsFurniture,
+      ),
+    ];
+    return MultiProvider
+    (
+      providers: providers,
+      child: Consumer<AdapterMaterialsFurniture>
+      (
+        builder: (context, value, child)
+        {
+          return AlertDialog
+          (
+            title: Text(widget.material != null ? 'Редактирование материала' : 'Добавление материала'),
+            content: Container
+            (
+              height: MediaQuery.of(context).size.height/7,
+              child: Column
+              (
+                children: <Widget>
+                [
+                  DropdownButton
+                  (
+                    value: _currentMaterial,
+                    items: _dropDownMenuMaterials,
+                    onChanged: changedDropDownItemMaterial,
+                  ),
+                ],
+              ),
+            ),
+            actions: <Widget>
+            [
+              FlatButton
+              (
+                onPressed: ()
+                {
+                  switch (widget.nameButton)
+                  {
+                    case "Добавить":
+                      addMaterial(context);
+                      break;
+                    
+                    case "Редактировать":
+                      changeMaterial(context);
                       break;
                   }
                   Navigator.pop(context);

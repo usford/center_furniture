@@ -16,7 +16,9 @@ import 'package:furniture_center/tables/table_materials.dart';
 import 'package:furniture_center/tables/table_orders.dart';
 import 'package:furniture_center/tables/table_provider.dart';
 import 'package:furniture_center/tables/table_purchases.dart';
+import 'package:furniture_center/tables/table_stock.dart';
 import 'package:furniture_center/tables/table_users.dart';
+import 'package:furniture_center/tables/table_write_orders.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:csv/csv.dart';
@@ -137,7 +139,9 @@ class _StateWorkSpaceAdmin extends State<WorkSpaceAdmin>
     'Поставщики',
     'Материалы',
     'Закупки',
-    'Заказы'
+    'Заказы',
+    'Склад',
+    'Пожелания'
   ];
 
  
@@ -364,6 +368,20 @@ class _StateWorkSpaceAdmin extends State<WorkSpaceAdmin>
       {
         _widget = TableOrder();
         _tableTitle = "Заказы";
+        break;
+      }
+
+      case "Склад":
+      {
+        _widget = TableStock();
+        _tableTitle = "Склад";
+        break;
+      }
+
+      case "Пожелания":
+      {
+        _widget = TableWriteOrders();
+        _tableTitle = "Пожелания";
         break;
       }
 

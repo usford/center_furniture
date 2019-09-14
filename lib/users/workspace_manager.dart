@@ -10,6 +10,7 @@ import 'package:furniture_center/tables/table_materials.dart';
 import 'package:furniture_center/tables/table_orders.dart';
 import 'package:furniture_center/tables/table_provider.dart';
 import 'package:furniture_center/tables/table_purchases.dart';
+import 'package:furniture_center/tables/table_stock.dart';
 import 'package:furniture_center/tables/table_users.dart';
 import 'package:furniture_center/tables/table_write_orders.dart';
 import 'package:provider/provider.dart';
@@ -71,7 +72,8 @@ class _StateWorkSpaceManager extends State<WorkSpaceManager>
     'Пользователи',
     'Материалы',
     'Закупки',
-    'Заказы'
+    'Заказы',
+    'Склад'
   ];
 
   List<Widget> _tables = List<Widget>();
@@ -174,6 +176,14 @@ class _StateWorkSpaceManager extends State<WorkSpaceManager>
         _chooseTitle = "Посмотреть заказы";
         break;
       }
+
+      case "Склад":
+      {
+        _widget = TableStock();
+        _chooseTitle = "Склад";
+        break;
+      }
+
       default:
       {
         _widget = _default(context);

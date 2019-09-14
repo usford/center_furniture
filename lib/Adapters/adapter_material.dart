@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:furniture_center/Adapters/adapter_furniture.dart';
 
 class AdapterMaterial with ChangeNotifier
 {

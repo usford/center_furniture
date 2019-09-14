@@ -59,6 +59,13 @@ class AdapterWriteOrder with ChangeNotifier
     }
     );
   }
+
+  void remove(String myID)
+  {
+
+    Firestore.instance.collection('write_orders').document(myID).delete();
+
+  }
 }
 
 class WriteOrder 

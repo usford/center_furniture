@@ -46,7 +46,7 @@ class _StateTableWriteOrders extends State<TableWriteOrders>
       case PopupMenuChangeCell.delete:
       {
         print('Удалить');
-        Provider.of<AdapterUser>(context).remove(id);
+        Provider.of<AdapterWriteOrder>(context).remove(id);
         break;
       }
     }
@@ -71,6 +71,8 @@ class _StateTableWriteOrders extends State<TableWriteOrders>
                 {
                   WriteOrder writeOrder = WriteOrder();
                   writeOrder = value.writeOrders[index];
+
+                  List<User> users = Provider.of<AdapterUser>(context).users.where((user) => user.documentID == value.writeOrders[index].clientID).toList();
                   return Card
                   (
                     child: Row
@@ -94,6 +96,16 @@ class _StateTableWriteOrders extends State<TableWriteOrders>
                                   Text('${value.writeOrders[index].clientID}', textAlign: TextAlign.center,)
                                 ]
                               ),
+
+                              TableRow
+                              (
+                                children: <Widget>
+                                [
+                                  Text('Email:', textAlign: TextAlign.center,),
+                                  Text('${users[0].email}', textAlign: TextAlign.center,)
+                                ]
+                              ),
+
                               TableRow
                               (
                                 children: <Widget>
