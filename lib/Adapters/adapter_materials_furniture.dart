@@ -29,6 +29,7 @@ class AdapterMaterialsFurniture with ChangeNotifier
               material.documentID = documentChange.document.documentID;
               material.name = documentChange.document.data['name'];
               material.fabric = documentChange.document.data['fabric'];
+              material.count = documentChange.document.data['count'];
 
               _materials.add(material);
               notifyListeners();
@@ -44,6 +45,15 @@ class AdapterMaterialsFurniture with ChangeNotifier
 
             case 'DocumentChangeType.modified':
             {
+              _materials.forEach((material)
+              {
+                if (documentChange.document.documentID == material.documentID)
+                {
+                  material.name = documentChange.document.data['name'];
+                  material.fabric = documentChange.document.data['fabric'];
+                  material.count = documentChange.document.data['count'];
+                }
+              });
               notifyListeners();
               break;
             }
@@ -70,7 +80,8 @@ class AdapterMaterialsFurniture with ChangeNotifier
       {
         'materialID': material.documentID,
         'name': material.name,
-        'fabric': material.fabric
+        'fabric': material.fabric,
+        'count': material.count
       }
     );
     materialsUploaded.complete();
@@ -84,4 +95,41 @@ class AdapterMaterialsFurniture with ChangeNotifier
 
     materialsUploaded.complete();
   }
+
+  void change(Furniture furniture, MyMaterial material, String myID, String materialID)
+  {
+    materialsUploaded = Completer();
+    Firestore.instance.collection('furnitures').document(furniture.documentID).collection('materials').document(myID).setData(
+      {
+        'materialID': materialID,
+        'name': material.name,
+        'fabric': material.fabric,
+        'count': material.count
+      }
+    );
+    materialsUploaded.complete();
+  }
+
+  
+}
+
+class MyMaterialFurnitures
+{
+  String documentID;
+  String name;
+  String fabric;
+  int count;
+
+  bool operator ==(o) =>
+      o is MyMaterialFurnitures && o.documentID == documentID;
+
+  MyMaterialFurnitures
+  (
+    {
+      this.documentID,
+      this.name,
+      this.fabric,
+      this.count,
+    }
+  );
 }

@@ -27,6 +27,7 @@ class AdapterMaterial with ChangeNotifier
               material.documentID = documentChange.document.documentID;
               material.name = documentChange.document.data['name'];
               material.fabric = documentChange.document.data['fabric'];
+              
 
               _materials.add(material);
               notifyListeners();
@@ -50,6 +51,7 @@ class AdapterMaterial with ChangeNotifier
                 {
                   material.name = documentChange.document.data['name'];
                   material.fabric = documentChange.document.data['fabric'];
+                  
                 }
               });
               notifyListeners();
@@ -119,6 +121,7 @@ class MyMaterial
   String documentID;
   String name;
   String fabric;
+  int count;
 
   bool operator ==(o) =>
       o is MyMaterial && o.documentID == documentID;
@@ -129,6 +132,7 @@ class MyMaterial
       this.documentID,
       this.name,
       this.fabric,
+      this.count,
     }
   );
 }

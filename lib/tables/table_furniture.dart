@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:furniture_center/Adapters/adapter_furniture.dart';
 import 'package:furniture_center/Adapters/adapter_material.dart';
 import 'package:furniture_center/Adapters/adapter_materials_furniture.dart';
+import 'package:furniture_center/Adapters/adapter_stock.dart';
 import 'package:furniture_center/PopupsMenu/popup_menu_change_cell.dart';
 import 'package:furniture_center/PopupsMenu/popup_menu_fruniture.dart';
 import 'package:provider/provider.dart';
@@ -70,15 +71,16 @@ class _StateTableFurniture extends State<TableFurniture>
   void getMaterial(BuildContext context)
   {
     _materials = List<MyMaterial>();
-    Provider.of<AdapterMaterial>(context).materials.forEach((material)
+    Provider.of<AdapterStock>(context).stock.forEach((stock)
     {
+      //List<MyMaterial> materials =  Provider.of<AdapterMaterial>(context).materials.where((material) => material.documentID == stock.material.documentID).toList();
       //print(provider.documentID);
       _materials.add(
         MyMaterial
         (
-          documentID: material.documentID,
-          name: material.name,
-          fabric: material.fabric
+          documentID: stock.material.documentID,
+          name: stock.material.name,
+          fabric: stock.material.fabric,
         )
       );
     });
@@ -352,12 +354,12 @@ class _StateDialogMaterials extends State<DialogMaterials>
     {
       case PopupMenuChangeCell.edit:
       {
-        print('Редактировать');
+        print('Редактировать 2');
         showDialog(
           context: context,
           builder: (BuildContext context)
           {
-            return DialogAddFurniture(nameButton: 'Редактировать', furniture: furniture,);
+            return DialogAddMaterial(nameButton: 'Редактировать', furniture: widget.furniture, materials: widget.materials, material: material,);
           }
         );
         break;
@@ -377,7 +379,7 @@ class _StateDialogMaterials extends State<DialogMaterials>
       context: context,
       builder: (BuildContext context)
       {
-        return DialogAddMaterial(materials: widget.materials, furniture: widget.furniture,);
+        return DialogAddMaterial(materials: widget.materials, furniture: widget.furniture, nameButton: "Добавить",);
       }
     );
   }
@@ -442,6 +444,15 @@ class _StateDialogMaterials extends State<DialogMaterials>
                                   Text('${material.fabric}', textAlign: TextAlign.center,)
                                 ]
                               ),
+
+                              TableRow
+                              (
+                                children: <Widget>
+                                [
+                                  Text('Количество:', textAlign: TextAlign.center,),
+                                  Text('${material.count}', textAlign: TextAlign.center,)
+                                ]
+                              ),
                             ],
                           ),
                         ),
@@ -468,8 +479,9 @@ class _StateDialogMaterials extends State<DialogMaterials>
                                     title: Text(choice),
                                     onTap: ()
                                     {
-                                      changeCell(choice, value.materials[index].documentID, context, widget.furniture, material);
                                       Navigator.pop(context);
+                                      changeCell(choice, value.materials[index].documentID, context, widget.furniture, material);
+                                      
                                     },
                                   )
                                 );
@@ -515,6 +527,7 @@ class DialogAddMaterial extends StatefulWidget
 
 class _StateDialogAddMaterial extends State<DialogAddMaterial>
 {
+  TextEditingController controllerAmount = TextEditingController();
   AdapterMaterial adapterMaterial;
   AdapterMaterialsFurniture adapterMaterialsFurniture;
   List<MyMaterial> _materials;
@@ -531,6 +544,17 @@ class _StateDialogAddMaterial extends State<DialogAddMaterial>
     _currentMaterial = _dropDownMenuMaterials[0].value;
     adapterMaterial = AdapterMaterial();
     adapterMaterialsFurniture = AdapterMaterialsFurniture(furnitureID: widget.furniture.documentID);
+
+    if (widget.material != null)
+    {
+      Firestore.instance.collection('furnitures').document(widget.furniture.documentID).collection('materials').document(widget.material.documentID).get().then((body)
+      {
+       setState(() {
+         _currentMaterial = body.data['materialID']; 
+       });
+      });
+      controllerAmount.text = widget.material.count.toString();
+    }
   }
 
   void addMaterial(BuildContext context)
@@ -539,12 +563,21 @@ class _StateDialogAddMaterial extends State<DialogAddMaterial>
     List<MyMaterial> materials =  Provider.of<AdapterMaterial>(context).materials.where((material) => material.documentID == _currentMaterial).toList();
 
     material = materials[0];
+    material.count = int.parse(controllerAmount.text);
 
     Provider.of<AdapterMaterialsFurniture>(context).add(widget.furniture, material);
   }
 
   void changeMaterial(BuildContext context)
   {
+    MyMaterial material = MyMaterial();
+    List<MyMaterial> materials =  Provider.of<AdapterMaterial>(context).materials.where((material) => material.documentID == _currentMaterial).toList();
+
+    material = materials[0];
+    material.documentID = widget.material.documentID;
+    material.count = int.parse(controllerAmount.text);
+
+    Provider.of<AdapterMaterialsFurniture>(context).change(widget.furniture, material, widget.material.documentID, _currentMaterial);
   }
 
   List<DropdownMenuItem<String>> getDropDownMenuMaterials()
@@ -603,6 +636,15 @@ class _StateDialogAddMaterial extends State<DialogAddMaterial>
                     value: _currentMaterial,
                     items: _dropDownMenuMaterials,
                     onChanged: changedDropDownItemMaterial,
+                  ),
+
+                  TextField
+                  (
+                    decoration: InputDecoration
+                    (
+                      hintText: 'Введите количество'
+                    ),
+                    controller: controllerAmount,
                   ),
                 ],
               ),
